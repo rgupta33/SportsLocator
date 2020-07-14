@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>SportsLocator</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>SportsLocator</h2>
+    <p>
+      SportsLocator helps you watch your favorite teams where you want to watch them. <br>
+      For example, if you want to watch the Los Angeles Lakers' or Clippers' play, but you live
+      far away in NYC, then you can select the Lakers and Clippers for the visiting teams
+      and select the New York Knicks and Brooklyn Nets for the home teams.
+    </p>
+    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+      {% for league, _ in leagues.items() -%}
+      <li class="nav-item">
+        <a class="nav-link{{" active" | safe if league == 'nba' | safe}}" id="{{league}}-tab" data-toggle="tab" href="#{{league}}" role="tab" aria-controls="#{{league}}" aria-selected="true">{% filter upper %}{{league}}{% endfilter %}</a>
+      </li>
+      {% endfor %}
+      <li class="nav-item">
+        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Profile</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+      </li>
+    </ul>
+  </div>
+
+  <!--
+USE THIS EXMAMPLE TO FIGURE OUT ARIA AND OTHER STUFF
+https://getbootstrap.com/docs/4.0/components/navs/
+  <ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Home</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Profile</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+  </li>
+</ul>
+<div class="tab-content" id="myTabContent">
+  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">...</div>
+  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
+  <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+</div> -->
+
+
+
+
+
+  <div class="tab-content">
+    {% for league, teams in leagues.items() -%}
+    <div id="{{league}}" class="tab-pane fade {{"show active" if league == 'nba'}}" role="tabpanel" aria-labelledby="{{league}}-tab">
+      <div class="container mb-4">
+        <div class="row mb-4">
+          <div class="col-3">
+            <label for="{{league}}-visiting"><strong>Visiting:</strong></label>
+            <select id="{{league}}-visiting" title="Visiting Teams" class="visiting selectpicker" data-live-search="true" data-actions-box="true" multiple>
+              {% for team in teams -%}
+                <option value="{{ team['abbreviation'] }}">{{ team['name'] }}</option>
+              {%- endfor %}
+            </select>
+          </div>
+          <div class="col-3">
+            <label for="{{league}}-home"><strong>Home:</strong></label>
+            <select id="{{league}}-home" title="Home Teams" class="home selectpicker" data-live-search="true" data-actions-box="true" multiple>
+              {% for team in teams -%}
+                <option value="{{ team['abbreviation'] }}">{{ team['name'] }}</option>
+              {%- endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <button class="btn btn-primary" onclick="findGames()">
+              Find {% filter upper %}{{league}}{% endfilter %} Games
+              <span id="spinner" style="display:none" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <div id="menu1" class="tab-pane fade">
+      <h3>Menu 1</h3>
+      <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+    </div>
+    <div id="menu2" class="tab-pane fade">
+      <h3>Menu 2</h3>
+      <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
+    </div>
+    <div id="menu3" class="tab-pane fade">
+      <h3>Menu 3</h3>
+      <p>Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+    </div>
+</div>
+    <!-- <div id="nfl" class="tab-pane fade">
+      Coming Soon
+    </div>
+    <div id="mlb" class="tab-pane fade">
+      Coming Soon
+    </div>
+    <div id="nhl" class="tab-pane fade">
+      Coming Soon
+    </div> -->
+
+
+  <div class="container" id="results">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Visiting</th>
+          <th scope="col">Home</th>
+          <th scope="col">Date</th>
+          <th scope="col">Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mark</td>
+          <td>Otto</td>
+          <td>@mdo</td>
+          <td>123</td>
+        </tr>
+        <tr>
+          <td>Jacob</td>
+          <td>Thornton</td>
+          <td>@fat</td>
+          <td>122</td>
+        </tr>
+        <tr>
+          <td>Larry</td>
+          <td>the Bird</td>
+          <td>@twitter</td>
+          <td>121</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+<!-- <p>To make the tabs toggleable, add the data-toggle="tab" attribute to each link. Then add a .tab-pane class with a unique ID for every tab and wrap them inside a div element with class .tab-content.</p> -->
+
+<script>
+
+  $(document).ready(function() {
+  })
+  function findGames() {
+    let sport = $('div.active').attr('id');
+    let home_abbrevs = $('div.active select.home').val();
+    let visiting_abbrevs = $('div.active select.visiting').val();
+    if (home_abbrevs == null || visiting_abbrevs == null) {
+      return;
+    }
+    if (home_abbrevs.length == 0 || visiting_abbrevs.length == 0) {
+      return;
+    }
+    $('#spinner').show();
+    console.log(home_abbrevs);
+    console.log(visiting_abbrevs);
+    console.log({visiting: visiting_abbrevs,home: home_abbrevs});
+    let results = $('#results table tbody')
+    $.post("/games",{sport: sport, visiting: visiting_abbrevs, home: home_abbrevs},function(data) {
+
+      results.empty()
+      let allHomeTeams = JSON.parse(data)
+      for (let team in allHomeTeams) {
+        let games = allHomeTeams[team]
+        console.log("games for " + team)
+        console.log(games)
+        for (let i = 0; i < games.length; i++) {
+          let game = games[i]
+          let row = document.createElement("tr")
+          let date = game[0]
+          let home = team
+          let visiting = game[1]
+          console.log("visiting: " + visiting)
+          console.log(game)
+          let time = game[2]
+          let visitingCell = document.createElement("td")
+          visitingCell.innerHTML = visiting
+          let homeCell = document.createElement("td")
+          homeCell.innerHTML = home
+          let dateCell = document.createElement("td")
+          dateCell.innerHTML = date
+          let timeCell = document.createElement("td")
+          timeCell.innerHTML = time
+          row.append(visitingCell,homeCell,dateCell,timeCell)
+          results.append(row)
+        }
+        console.log(team);
+      }
+      // <a id="tickets" target='_blank' rel='noopener noreferrer' href=''>
+      //   <button style="display:none" class="btn btn-secondary">
+      //
+      //   </button>
+      // </a>
+
+
+      $('#spinner').hide();
+    });
+
+  }
+
+  function p(r) {
+    console.log(r);
+  }
+</script>
+</body>
+</html>
